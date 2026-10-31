@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrePlanner – Smart Study Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/lucide@0.395.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- PAGE 1: WELCOME / PROFILE -->
+<div id="welcome" class="welcome hidden">
+  <form id="welcomeForm" class="welcome-card" novalidate>
+    <div class="logo big"><i data-lucide="graduation-cap"></i></div>
+    <h1>PrePlanner</h1>
+    <p class="tagline">Smart Study Planner</p>
+    <p class="muted">Plan your topics, focus without distractions and watch your progress grow every day.</p>
+    <label for="nameInput">What should we call you?</label>
+    <input id="nameInput" type="text" maxlength="30" placeholder="Your name">
+    <small id="nameError" class="error"></small>
+    <button class="btn primary wide" type="submit">Get started</button>
+  </form>
+</div>
+
+<div id="app" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo"><i data-lucide="graduation-cap"></i></div><span>PrePlanner</span></div>
+    <nav>
+      <button class="nav-btn" data-page="dashboard"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></button>
+      <button class="nav-btn" data-page="planner"><i data-lucide="book-open-check"></i><span>Study Planner</span></button>
+      <button class="nav-btn" data-page="timer"><i data-lucide="timer"></i><span>Focus Timer</span></button>
+      <button class="nav-btn" data-page="progress"><i data-lucide="trending-up"></i><span>Daily Progress</span></button>
+      <button class="nav-btn" data-page="calendar"><i data-lucide="calendar-days"></i><span>Calendar</span></button>
+      <button class="nav-btn" data-page="reports"><i data-lucide="bar-chart-3"></i><span>Reports</span></button>
+      <button class="nav-btn" data-page="achievements"><i data-lucide="trophy"></i><span>Achievements</span></button>
+      <button class="nav-btn" data-page="settings"><i data-lucide="settings"></i><span>Settings</span></button>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <!-- PAGE 2: DASHBOARD -->
+    <section id="dashboard" class="page">
+      <header class="page-head"><div><h2 id="dashHello"></h2><p class="muted">Here is how your study day is going.</p></div>
+        <button class="btn primary" id="quickStart"><i data-lucide="play"></i>Quick start study</button></header>
+      <div class="grid stats">
+        <div class="card stat"><i data-lucide="clock"></i><b id="dToday">0h 0m</b><span>Today's study time</span></div>
+        <div class="card stat"><i data-lucide="check-circle-2"></i><b id="dDone">0</b><span>Topics completed</span></div>
+        <div class="card stat"><i data-lucide="hourglass"></i><b id="dPend">0</b><span>Pending topics</span></div>
+        <div class="card stat"><i data-lucide="zap"></i><b id="dScore">0%</b><span>Productivity score</span></div>
+        <div class="card stat"><i data-lucide="flame"></i><b id="dStreak">0 days</b><span>Study streak</span></div>
+      </div>
+      <div class="grid two">
+        <div class="card"><h3>Last 7 days (hours)</h3><div class="chart-box"><canvas id="dChart"></canvas></div></div>
+        <div class="card quote-card"><i data-lucide="quote"></i><p id="quote"></p></div>
+      </div>
+    </section>
+
+    <!-- PAGE 3: STUDY PLANNER -->
+    <section id="planner" class="page">
+      <header class="page-head"><div><h2>Study planner</h2><p class="muted">Add subjects, then break them into topics.</p></div></header>
+      <form id="subjectForm" class="card row-form" novalidate>
+        <input id="subjectName" type="text" maxlength="40" placeholder="New subject (e.g. Mathematics)">
+        <button class="btn primary" type="submit"><i data-lucide="plus"></i>Add subject</button>
+      </form>
+      <div id="subjectList"></div>
+    </section>
+
+    <!-- PAGE 4: FOCUS TIMER -->
+    <section id="timer" class="page">
+      <header class="page-head"><div><h2>Focus timer</h2><p class="muted">Only study time is counted. Breaks are paused.</p></div></header>
+      <div class="grid two">
+        <div class="card timer-card">
+          <select id="timerSubject"></select>
+          <div id="timerDisplay" class="clock">00:00:00</div>
+          <div id="timerStatus" class="pill">Ready</div>
+          <div class="muted">Break time: <b id="breakDisplay">00:00:00</b></div>
+          <div class="btn-row">
+            <button class="btn primary" id="btnStart"><i data-lucide="play"></i>Start</button>
+            <button class="btn" id="btnBreak"><i data-lucide="coffee"></i>Break</button>
+            <button class="btn" id="btnResume"><i data-lucide="play-circle"></i>Resume</button>
+            <button class="btn danger" id="btnStop"><i data-lucide="square"></i>Stop</button>
+            <button class="btn ghost" id="btnReset"><i data-lucide="rotate-ccw"></i>Reset</button>
+          </div>
+        </div>
+        <div class="card"><h3>Total study duration</h3><div class="big-num" id="tTotal">0h 0m</div>
+          <h3>Recent sessions</h3><ul id="sessionList" class="list"></ul></div>
+      </div>
+    </section>
+
+    <!-- PAGE 5: DAILY PROGRESS -->
+    <section id="progress" class="page">
+      <header class="page-head"><div><h2>Daily progress</h2><p class="muted">Compare today with your recent days.</p></div></header>
+      <div class="grid stats">
+        <div class="card stat"><i data-lucide="clock"></i><b id="pTotal">0h 0m</b><span>Total study time</span></div>
+        <div class="card stat"><i data-lucide="check-circle-2"></i><b id="pDone">0</b><span>Total completed topics</span></div>
+        <div class="card stat"><i data-lucide="zap"></i><b id="pScore">0%</b><span>Today's productivity</span></div>
+      </div>
+      <div class="card"><h3>Goal progress</h3><div class="bar"><div id="pBar"></div></div>
+        <p class="muted" id="pGoalText"></p><p id="pCompare"></p></div>
+      <div class="card"><h3>Daily study activity (hours, last 14 days)</h3><div class="chart-box"><canvas id="pChart"></canvas></div></div>
+    </section>
+
+    <!-- PAGE 6: CALENDAR -->
+    <section id="calendar" class="page">
+      <header class="page-head"><div><h2>Calendar</h2><p class="muted">Highlighted days are days you studied.</p></div></header>
+      <div class="card">
+        <div class="cal-nav"><button class="btn ghost" id="calPrev"><i data-lucide="chevron-left"></i></button><h3 id="calTitle"></h3>
+          <button class="btn ghost" id="calNext"><i data-lucide="chevron-right"></i></button></div>
+        <div id="calGrid" class="cal-grid"></div>
+      </div>
+      <div class="card" id="dayInfo"><p class="muted">Select a day to see its details.</p></div>
+    </section>
+
+    <!-- PAGE 7: REPORTS -->
+    <section id="reports" class="page">
+      <header class="page-head"><div><h2>Reports and history</h2></div>
+        <select id="rangeSel"><option value="1">Daily (today)</option><option value="7" selected>Weekly (7 days)</option><option value="30">Monthly (30 days)</option></select></header>
+      <div class="grid stats">
+        <div class="card stat"><i data-lucide="clock"></i><b id="rTotal">0h 0m</b><span>Total study time</span></div>
+        <div class="card stat"><i data-lucide="check-circle-2"></i><b id="rDone">0</b><span>Completed topics</span></div>
+        <div class="card stat"><i data-lucide="hourglass"></i><b id="rPend">0</b><span>Pending topics</span></div>
+      </div>
+      <div class="grid two">
+        <div class="card"><h3>Study time per day (hours)</h3><div class="chart-box"><canvas id="rBar"></canvas></div></div>
+        <div class="card"><h3>Subject-wise study time</h3><div class="chart-box"><canvas id="rPie"></canvas></div></div>
+      </div>
+      <div class="card"><h3>Session history</h3><ul id="rHistory" class="list"></ul></div>
+    </section>
+
+    <!-- PAGE 8: ACHIEVEMENTS -->
+    <section id="achievements" class="page">
+      <header class="page-head"><div><h2>Achievements</h2><p class="muted" id="achCount"></p></div></header>
+      <div id="badges" class="grid badges"></div>
+    </section>
+
+    <!-- PAGE 9: REMINDERS AND SETTINGS -->
+    <section id="settings" class="page">
+      <header class="page-head"><div><h2>Reminders and settings</h2></div></header>
+      <div class="grid two">
+        <div class="card"><h3>Study reminders</h3>
+          <form id="remForm" class="row-form" novalidate>
+            <input id="remTime" type="time"><input id="remLabel" type="text" maxlength="40" placeholder="Reminder text">
+            <button class="btn primary" type="submit"><i data-lucide="bell-plus"></i>Add</button></form>
+          <ul id="remList" class="list"></ul>
+          <label class="switch"><input type="checkbox" id="notifyToggle"> Enable notifications</label>
+        </div>
+        <div class="card"><h3>Student profile</h3>
+          <form id="profileForm" novalidate>
+            <label for="setName">Name</label><input id="setName" type="text" maxlength="30">
+            <label for="setGoal">Daily study goal (minutes)</label><input id="setGoal" type="number" min="10" max="1440">
+            <small id="profileError" class="error"></small>
+            <button class="btn primary" type="submit"><i data-lucide="save"></i>Save profile</button></form>
+          <hr><h3>Danger zone</h3><button class="btn danger" id="resetAll"><i data-lucide="trash-2"></i>Reset all study data</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<div id="toast" class="toast"></div>
+<script src="script.js"></script>
+</body>
+</html>
