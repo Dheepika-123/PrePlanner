@@ -32,6 +32,7 @@
     <nav>
       <button class="nav-btn" data-page="dashboard"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></button>
       <button class="nav-btn" data-page="planner"><i data-lucide="book-open-check"></i><span>Study Planner</span></button>
+      <button class="nav-btn" data-page="task"><i data-lucide="clipboard-list"></i><span>Today's Task</span></button>
       <button class="nav-btn" data-page="timer"><i data-lucide="timer"></i><span>Focus Timer</span></button>
       <button class="nav-btn" data-page="progress"><i data-lucide="trending-up"></i><span>Daily Progress</span></button>
       <button class="nav-btn" data-page="calendar"><i data-lucide="calendar-days"></i><span>Calendar</span></button>
@@ -67,6 +68,82 @@
         <button class="btn primary" type="submit"><i data-lucide="plus"></i>Add subject</button>
       </form>
       <div id="subjectList"></div>
+    </section>
+
+    <!-- PAGE 3B: TODAY'S TASK (upload -> confirm -> study -> final report) -->
+    <section id="task" class="page">
+      <header class="page-head"><div><h2>Today's task</h2><p class="muted" id="tkSub">Upload your subjects and topics, then study them one by one.</p></div>
+        <button class="btn primary hidden" id="tkEndBtn"><i data-lucide="flag"></i>End Today's Task</button></header>
+
+      <!-- Step 0: nothing uploaded yet -->
+      <div id="tkIntro" class="card tk-center tk-panel">
+        <i data-lucide="upload-cloud"></i><h3>Upload your study data</h3>
+        <p class="muted">Enter the subjects and topics you plan to finish today.</p>
+        <div class="btn-row"><button class="btn primary" id="tkUploadBtn"><i data-lucide="upload"></i>Upload Data</button>
+          <button class="btn hidden" id="tkLast"><i data-lucide="file-bar-chart"></i>View last report</button></div>
+      </div>
+
+      <!-- Step 1: spreadsheet-style input table -->
+      <div id="tkSheet" class="card tk-panel hidden">
+        <h3>Upload study data</h3>
+        <p class="muted">One subject and one topic per row. Completely empty rows are ignored.</p>
+        <div class="table-wrap"><table class="sheet"><thead><tr><th>#</th><th>Subject Name</th><th>Topic Name</th><th></th></tr></thead>
+          <tbody id="tkRows"></tbody></table></div>
+        <small id="tkSheetError" class="error"></small>
+        <div class="btn-row left">
+          <button class="btn" id="tkAddRow" type="button"><i data-lucide="plus"></i>Add Row</button>
+          <button class="btn primary" id="tkSave" type="button"><i data-lucide="save"></i>Submit / Save Data</button>
+          <button class="btn ghost" id="tkCancel" type="button">Cancel</button></div>
+      </div>
+
+      <!-- Step 2: confirmation -->
+      <div id="tkConfirm" class="card tk-center tk-panel hidden">
+        <i data-lucide="rocket"></i><h3>Are you ready to start the task?</h3>
+        <p class="muted" id="tkConfirmInfo"></p>
+        <div class="btn-row"><button class="btn primary" id="tkYes"><i data-lucide="play"></i>Yes, Let's Start</button>
+          <button class="btn ghost" id="tkRedo">Upload different data</button></div>
+      </div>
+
+      <!-- Step 3: study execution -->
+      <div id="tkRun" class="tk-panel hidden"><div class="grid two">
+        <div class="card timer-card">
+          <div id="tkBanner" class="tk-banner"></div>
+          <select id="tkSubject" aria-label="Subject"></select>
+          <select id="tkTopic" aria-label="Topic"></select>
+          <div class="clock"><span id="tkHM">00:00</span><small id="tkSec">:00</small></div>
+          <div id="tkStatus" class="pill">Ready</div>
+          <div class="muted">Break time: <b id="tkBreak">00:00</b></div>
+          <div class="btn-row">
+            <button class="btn primary" id="tkStart"><i data-lucide="play"></i>Start</button>
+            <button class="btn" id="tkBrk"><i data-lucide="coffee"></i>Break</button>
+            <button class="btn" id="tkResume"><i data-lucide="play-circle"></i>Resume</button>
+            <button class="btn danger" id="tkStop"><i data-lucide="square"></i>Stop</button></div>
+        </div>
+        <div class="card"><h3>Task checklist</h3><div class="bar"><div id="tkBar"></div></div>
+          <p class="muted" id="tkProg"></p><div id="tkList"></div></div>
+      </div></div>
+
+      <!-- Step 4: final report -->
+      <div id="tkReport" class="tk-panel hidden">
+        <p class="muted" id="tkrDate" style="margin-bottom:14px"></p>
+        <div class="grid stats">
+          <div class="card stat"><i data-lucide="clock"></i><b id="tkrActive">0h 0m</b><span>Total active study hours</span></div>
+          <div class="card stat"><i data-lucide="coffee"></i><b id="tkrBreak">0h 0m</b><span>Total break time</span></div>
+          <div class="card stat"><i data-lucide="check-circle-2"></i><b id="tkrDone">0</b><span>Topics completed</span></div>
+          <div class="card stat"><i data-lucide="hourglass"></i><b id="tkrPend">0</b><span>Topics pending</span></div>
+          <div class="card stat"><i data-lucide="book-open"></i><b id="tkrSubj">0</b><span>Subjects covered</span></div>
+        </div>
+        <div class="card"><h3>Smart performance score</h3>
+          <div class="big-num" id="tkrScore">0 / 100</div><div class="bar"><div id="tkrBar"></div></div>
+          <p id="tkrMsg"></p><p class="muted" id="tkrFormula"></p></div>
+        <div class="grid two">
+          <div class="card"><h3>Subject-wise summary</h3><div class="table-wrap"><table class="sheet" id="tkrSubjTbl"></table></div></div>
+          <div class="card"><h3>Active study time by subject (hours)</h3><div class="chart-box"><canvas id="tkrChart"></canvas></div></div>
+        </div>
+        <div class="card"><h3>Subject and topic breakdown</h3><div class="table-wrap"><table class="sheet" id="tkrTbl"></table></div></div>
+        <div class="btn-row left"><button class="btn primary" id="tkNew"><i data-lucide="plus"></i>Start a new task</button>
+          <button class="btn" id="tkHome"><i data-lucide="layout-dashboard"></i>Back to dashboard</button></div>
+      </div>
     </section>
 
     <!-- PAGE 4: FOCUS TIMER -->
